@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 const quizData = [
   {
     id: 1,
@@ -51,3 +53,70 @@ const quizData = [
   }
 ];
 
+export default function GameQuiz() {
+  const [step, setStep] = useState(0);
+  const [score, setScore] = useState(0);
+  const [selectedChoice, setSelectedChoice] = useState(null);
+  const [showExplanation, setShowExplanation] = useState(false);
+
+  const currentQuestion = quizData[step];
+
+  const handleChoice = (index) => {
+    setSelectedChoice(index);
+    setShowExplanation(true);
+    if (index === currentQuestion.answer) {
+      setScore(prev => prev + 1);
+    }
+  };
+
+  const handleNext = () => {
+    setSelectedChoice(null);
+    setShowExplanation(false);
+    setStep(step + 1);
+  };
+
+  if (step >= quizData.length) {
+    return (
+      <div style={{ padding: '2rem', textAlign: 'center' }}>
+        <h1>Game Over</h1>
+        <p>Your score: {score} / {quizData.length}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ padding: '2rem', maxWidth: '600px', margin: 'auto' }}>
+      <h2>Question {step + 1}</h2>
+      <p>{currentQuestion.question}</p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '1rem' }}>
+        {currentQuestion.choices.map((choice, index) => (
+          <button
+            key={index}
+            onClick={() => handleChoice(index)}
+            disabled={showExplanation}
+            style={{
+              padding: '0.75rem',
+              borderRadius: '6px',
+              backgroundColor: selectedChoice === index ? '#ddd' : '#fff',
+              border: '1px solid #ccc',
+              cursor: showExplanation ? 'default' : 'pointer'
+            }}
+          >
+            {choice}
+          </button>
+        ))}
+      </div>
+      {showExplanation && (
+        <div style={{ marginTop: '1rem', fontStyle: 'italic' }}>
+          <p>
+            {selectedChoice === currentQuestion.answer ? "✅ Correct! " : "❌ Incorrect. "}
+            {currentQuestion.explanation}
+          </p>
+          <button onClick={handleNext} style={{ marginTop: '1rem', padding: '0.5rem 1rem' }}>
+            Next
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
